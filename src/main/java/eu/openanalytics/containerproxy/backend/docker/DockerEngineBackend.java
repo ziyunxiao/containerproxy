@@ -33,6 +33,7 @@ import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerCreation;
 import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
+import com.spotify.docker.client.messages.Image;
 import com.spotify.docker.client.messages.HostConfig.Builder;
 import com.spotify.docker.client.messages.PortBinding;
 
@@ -84,6 +85,13 @@ public class DockerEngineBackend extends AbstractDockerBackend {
 			    .cmd(spec.getCmd())
 			    .env(buildEnv(spec, proxy))
 			    .build();
+		
+
+		List<Image> images = dockerClient.listImages(com.spotify.docker.client.DockerClient.ListImagesParam.byName(spec.getImage()));
+		if (images.size() == 0){
+			dockerClient.pull(spec.getImage());
+		}
+
 		ContainerCreation containerCreation = dockerClient.createContainer(containerConfig);
 		
 		if (spec.getNetworkConnections() != null) {
